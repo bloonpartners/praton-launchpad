@@ -33,8 +33,7 @@ CREATE TABLE wizard_completions (
   project_description text,       -- free text from Q2 — what are they building
   
   -- Completeness
-  goals_count int,                -- how many goals they entered (1-4)
-  credentials_skipped text[]      -- which credential screens were skipped
+  goals_count int                 -- how many goals they entered (1-4)
 );
 ```
 
@@ -96,7 +95,6 @@ export interface TelemetryPayload {
   design_principles: string[];
   capabilities: string[];
   goals_count: number;
-  credentials_skipped: string[];
   project_description: string;
 }
 ```

@@ -1,4 +1,6 @@
-import { ArrowRight, X } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
+import { ArrowRight, ShieldCheck } from 'lucide-react'
+import type { WizardData } from '../../types/wizard'
 
 interface StepProps {
   onNext: () => void
@@ -6,11 +8,7 @@ interface StepProps {
 }
 
 export function WelcomeStep({ onNext }: StepProps) {
-  const handleExit = () => {
-    window.close()
-    // Fallback if window.close() is blocked
-    window.location.href = 'https://praton.com'
-  }
+  const { register } = useFormContext<WizardData>()
 
   return (
     <div className="flex flex-col items-center text-center">
@@ -22,6 +20,9 @@ export function WelcomeStep({ onNext }: StepProps) {
       />
 
       {/* Headline */}
+      <p className="text-sm font-semibold tracking-wide uppercase text-text-secondary mb-2">
+        Praton Launchpad
+      </p>
       <h1 className="text-[32px] font-bold text-navy leading-tight mb-4">
         Set up a professional Claude Code project in minutes
       </h1>
@@ -33,33 +34,33 @@ export function WelcomeStep({ onNext }: StepProps) {
         your project's needs.
       </p>
 
-      {/* Telemetry notice */}
-      <div className="bg-bg-secondary rounded-lg p-5 mb-10 text-sm text-text-secondary leading-relaxed max-w-lg">
-        This tool sends your project configuration answers (project type,
-        language, deployment target) anonymously to Praton to improve the tool.
-        No personal data, API keys, or code is collected. By proceeding, you
-        agree to this.
-      </div>
+      {/* Telemetry checkbox */}
+      <label className="flex gap-3 bg-bg-secondary rounded-lg p-5 mb-10 text-sm text-text-secondary leading-relaxed max-w-lg text-left cursor-pointer">
+        <input
+          type="checkbox"
+          {...register('telemetry_consent')}
+          className="mt-0.5 shrink-0 w-4 h-4 accent-accent cursor-pointer"
+        />
+        <div className="flex gap-2">
+          <ShieldCheck size={18} className="shrink-0 mt-0.5 text-text-secondary" />
+          <span>
+            <strong className="text-navy">Help improve Praton Launchpad</strong> — Share
+            anonymous setup stats (e.g., OS, selected options). No code,
+            credentials, or personal data ever leaves your machine. Most users
+            leave this on.
+          </span>
+        </div>
+      </label>
 
-      {/* Buttons */}
-      <div className="flex gap-4">
-        <button
-          type="button"
-          onClick={handleExit}
-          className="flex items-center gap-2 px-6 py-3 rounded-lg border border-navy text-navy font-medium hover:bg-navy/5 transition-colors cursor-pointer"
-        >
-          <X size={18} />
-          Exit
-        </button>
-        <button
-          type="button"
-          onClick={onNext}
-          className="flex items-center gap-2 px-8 py-3 rounded-lg bg-accent text-white font-medium hover:bg-accent/90 transition-colors cursor-pointer"
-        >
-          Continue
-          <ArrowRight size={18} />
-        </button>
-      </div>
+      {/* Continue button */}
+      <button
+        type="button"
+        onClick={onNext}
+        className="flex items-center gap-2 px-8 py-3 rounded-lg bg-accent text-white font-medium hover:bg-accent/90 transition-colors cursor-pointer"
+      >
+        Continue
+        <ArrowRight size={18} />
+      </button>
     </div>
   )
 }
