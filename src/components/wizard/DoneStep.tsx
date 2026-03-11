@@ -106,6 +106,16 @@ export function DoneStep() {
         </ol>
       </div>
 
+      {/* First prompt suggestion */}
+      {!goal1Title && (
+        <div className="bg-bg-secondary rounded-lg px-5 py-3 mb-8 max-w-md">
+          <p className="text-xs text-text-secondary mb-1">Your first prompt:</p>
+          <p className="text-sm font-medium text-navy font-mono">
+            Read CLAUDE.md and help me plan what to build first
+          </p>
+        </div>
+      )}
+
       {/* First task callout */}
       {goal1Title && (
         <div className="bg-bg-secondary rounded-lg px-5 py-3 mb-8 max-w-md">

@@ -638,7 +638,7 @@ function generateLaunchersUnix(): { name: string; content: string }[] {
   ]
 }
 
-function generateSetupPrerequisitesBat(): string {
+function generateSetupPrerequisitesBat(hasCredentials: boolean): string {
   return `@echo off\r
 setlocal\r
 echo.\r
@@ -719,16 +719,18 @@ call claude\r
 echo.\r
 \r
 echo ===============================================\r
-echo All set! Next step: double-click 'Setup Credentials'\r
+${hasCredentials
+    ? `echo All set! Next step: double-click 'Setup Credentials'\r
 echo to connect your AI tools, then 'Start Claude Code'\r
-echo to begin.\r
+echo to begin.\r`
+    : `echo All set! Double-click 'Start Claude Code' to begin.\r`}
 echo ===============================================\r
 echo.\r
 pause\r
 `
 }
 
-function generateSetupPrerequisitesCommand(): string {
+function generateSetupPrerequisitesCommand(hasCredentials: boolean): string {
   return `#!/bin/bash
 cd "$(dirname "$0")/.."
 
@@ -816,11 +818,15 @@ echo ""
 claude
 echo ""
 
-echo "==============================================="
+${hasCredentials
+    ? `echo "==============================================="
 echo "All set! Next step: double-click 'Setup Credentials'"
 echo "to connect your AI tools, then 'Start Claude Code'"
 echo "to begin."
-echo "==============================================="
+echo "==============================================="`
+    : `echo "==============================================="
+echo "All set! Double-click 'Start Claude Code' to begin."
+echo "==============================================="`}
 `
 }
 
@@ -1003,14 +1009,19 @@ paths:
   }
 
   // Setup scripts (in Setup/ subfolder, OS-specific)
+  const includeCredentials = d.auth_type !== 'subscription'
   if (isWindows) {
-    files.push({ name: `${slug}/Setup/1 - Setup Prerequisites.bat`, content: generateSetupPrerequisitesBat() })
-    const credBat = generateSetupCredentialsBat(d)
-    if (credBat) files.push({ name: `${slug}/Setup/2 - Setup Credentials.bat`, content: credBat })
+    files.push({ name: `${slug}/Setup/1 - Setup Prerequisites.bat`, content: generateSetupPrerequisitesBat(includeCredentials) })
+    if (includeCredentials) {
+      const credBat = generateSetupCredentialsBat(d)
+      if (credBat) files.push({ name: `${slug}/Setup/2 - Setup Credentials.bat`, content: credBat })
+    }
   } else {
-    files.push({ name: `${slug}/Setup/1 - Setup Prerequisites.command`, content: generateSetupPrerequisitesCommand() })
-    const credCommand = generateSetupCredentialsCommand(d)
-    if (credCommand) files.push({ name: `${slug}/Setup/2 - Setup Credentials.command`, content: credCommand })
+    files.push({ name: `${slug}/Setup/1 - Setup Prerequisites.command`, content: generateSetupPrerequisitesCommand(includeCredentials) })
+    if (includeCredentials) {
+      const credCommand = generateSetupCredentialsCommand(d)
+      if (credCommand) files.push({ name: `${slug}/Setup/2 - Setup Credentials.command`, content: credCommand })
+    }
   }
 
   // Prompt Advisor — generated last so it can list all other files

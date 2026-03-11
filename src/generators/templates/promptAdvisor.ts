@@ -80,6 +80,10 @@ function capabilityName(c: string): string {
 export function generatePromptAdvisor(d: WizardData, files: GeneratedFile[]): string {
   const projectName = d.project_name || 'Your Project'
   const allCaps = ['context7', ...d.capabilities.filter(c => c !== 'context7')]
+  const hasGoals = [d.goal1_description, d.goal2_description, d.goal3_description].some(g => g.trim().length > 0)
+  const firstPrompt = hasGoals
+    ? 'Read CLAUDE.md and start working on the first pending task in docs/development-queue.md'
+    : 'Read CLAUDE.md and help me plan what to build first'
 
   const sections: string[] = []
 
@@ -457,11 +461,10 @@ These are ready-to-use prompts tailored to this project. Modify them as needed.
 1. NEW FEATURE
 ──────────────
 
-  Read CLAUDE.md and start working on the first pending task in
-  docs/development-queue.md.
+  ${firstPrompt}${hasGoals ? `
 
   After completing it, mark it as done in the queue, commit your work,
-  and update docs/feature-inventory.md.
+  and update docs/feature-inventory.md.` : ''}
 
 
 2. BUG FIX
@@ -539,8 +542,7 @@ These are ready-to-use prompts tailored to this project. Modify them as needed.
 QUICK REFERENCE
 ================================================================================
 
-Start working:     "Read CLAUDE.md and start on the first pending task in
-                    docs/development-queue.md"
+Start working:     "${firstPrompt}"
 Resume:            "Read CLAUDE.md and docs/handoff-log.md. Continue."
 Diagnose a bug:    "ultrathink — use plan mode. [describe bug]. Diagnose
                     before fixing."

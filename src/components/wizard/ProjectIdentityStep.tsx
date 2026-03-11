@@ -83,6 +83,9 @@ export function ProjectIdentityStep({ onNext, onBack }: StepProps) {
               Minimum 20 characters ({20 - projectDescription.trim().length} more needed)
             </p>
           )}
+          <p className="text-xs text-text-secondary mt-1.5">
+            Just exploring? A short description is fine. Building something real? Be as detailed as possible — this is what your AI reads to understand your project at the start of every session.
+          </p>
         </div>
 
         {/* Problem Statement */}

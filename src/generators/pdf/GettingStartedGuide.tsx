@@ -307,7 +307,8 @@ export function GettingStartedGuide({ data, files, logoBase64 }: GuideProps) {
   const projectName = data.project_name || 'Your Project'
   const fileDescs = getFileDescriptions(files)
   const selectedCaps = ['context7', ...data.capabilities.filter(c => c !== 'context7')]
-  const needsCredentials = data.capabilities.some(c => ['perplexity', 'postgres', 'shell'].includes(c))
+  const needsCredentials = data.auth_type !== 'subscription' && data.capabilities.some(c => ['perplexity', 'postgres', 'shell'].includes(c))
+  const hasGoals = [data.goal1_description, data.goal2_description, data.goal3_description].some(g => g.trim().length > 0)
 
   return (
     <Document>
@@ -345,6 +346,16 @@ export function GettingStartedGuide({ data, files, logoBase64 }: GuideProps) {
         <Check>Install Claude Code automatically using npm</Check>
         <Check>Log you into Claude Code via your browser</Check>
 
+        {data.detected_os === 'windows' && (
+          <>
+            <View style={s.divider} />
+            <Text style={s.h2}>Node.js Installer Note</Text>
+            <Text style={s.p}>
+              During the Node.js installation, one screen will ask about "Automatically install the necessary tools (Chocolatey, etc.)" — uncheck this box. You don't need it. Just click Next.
+            </Text>
+          </>
+        )}
+
         <Text style={[s.p, { marginTop: 8 }] as const}>
           If you prefer to install manually, here's what you need:
         </Text>
@@ -358,6 +369,46 @@ export function GettingStartedGuide({ data, files, logoBase64 }: GuideProps) {
           <Text><Text style={s.bold}>Claude Code</Text> — run: </Text>
         </Bullet>
         <View style={s.codeBlock}><Text>npm install -g @anthropic-ai/claude-code</Text></View>
+      </Page>
+
+      {/* Git Windows Installer Walkthrough (Windows only) */}
+      {data.detected_os === 'windows' && (
+        <Page size="A4" style={s.page}>
+          <PageNum />
+          <Text style={s.h1}>Git for Windows — Installer Walkthrough</Text>
+          <Text style={s.p}>
+            The Git installer has many screens. Here is exactly what to pick on each one:
+          </Text>
+          <NumberedStep n={1}><Text><Text style={s.bold}>Select Components</Text> — Leave defaults. Click Next.</Text></NumberedStep>
+          <NumberedStep n={2}><Text><Text style={s.bold}>Default editor</Text> — Select "Use Visual Studio Code as Git's default editor" (or Notepad if VS Code isn't installed). Click Next.</Text></NumberedStep>
+          <NumberedStep n={3}><Text><Text style={s.bold}>Adjusting your PATH</Text> — Select "Git from the command line and also from 3rd-party software" (middle option, already selected). Click Next.</Text></NumberedStep>
+          <NumberedStep n={4}><Text><Text style={s.bold}>SSH executable</Text> — Select "Use bundled OpenSSH". Click Next.</Text></NumberedStep>
+          <NumberedStep n={5}><Text><Text style={s.bold}>HTTPS transport backend</Text> — Select "Use the OpenSSL library". Click Next.</Text></NumberedStep>
+          <NumberedStep n={6}><Text><Text style={s.bold}>Line ending conversions</Text> — Select "Checkout Windows-style, commit Unix-style line endings" (first option, already selected). Click Next.</Text></NumberedStep>
+          <NumberedStep n={7}><Text><Text style={s.bold}>Terminal emulator</Text> — Select "Use MinTTY". Click Next.</Text></NumberedStep>
+          <NumberedStep n={8}><Text><Text style={s.bold}>Default behavior of git pull</Text> — Select "Fast-forward or merge" (first option). Click Next.</Text></NumberedStep>
+          <NumberedStep n={9}><Text><Text style={s.bold}>Credential helper</Text> — Select "Git Credential Manager". Click Next.</Text></NumberedStep>
+          <NumberedStep n={10}><Text><Text style={s.bold}>Extra options</Text> — Enable "file system caching". Leave "symbolic links" unchecked. Click Next.</Text></NumberedStep>
+          <NumberedStep n={11}><Text><Text style={s.bold}>Experimental options</Text> — Leave everything unchecked. Click Install.</Text></NumberedStep>
+        </Page>
+      )}
+
+      {/* First Launch */}
+      <Page size="A4" style={s.page}>
+        <PageNum />
+        <Text style={s.h1}>First Launch</Text>
+        <Text style={s.p}>
+          When you first open Claude Code, it will ask you a few setup questions:
+        </Text>
+        <Bullet>
+          <Text><Text style={s.bold}>Theme</Text> — Pick whichever you prefer (dark or light). This is just visual.</Text>
+        </Bullet>
+        <Bullet>
+          <Text><Text style={s.bold}>Trust this folder?</Text> — Select Yes. Claude Code needs access to your project files to work.</Text>
+        </Bullet>
+        <Text style={[s.p, { marginTop: 8 }] as const}>
+          These are one-time prompts. After this, you're ready to go.
+        </Text>
       </Page>
 
       {/* Project Structure */}
@@ -390,12 +441,38 @@ export function GettingStartedGuide({ data, files, logoBase64 }: GuideProps) {
             <Text style={s.p}>
               Some of your AI tools need credentials (API keys or connection strings) before they can work.
             </Text>
-            <Check>Double-click "Setup Credentials" (the .bat file on Windows, .command on macOS)</Check>
+            <Check>Double-click "Setup Credentials" in the Setup folder</Check>
             <Check>Follow the prompts — it will tell you what each key is and where to get it</Check>
             <Check>Paste each key when asked</Check>
             <Text style={s.pSmall}>
               You can run this script again anytime if you need to update your credentials.
             </Text>
+          </>
+        )}
+
+        <View style={s.divider} />
+
+        <Text style={s.h1}>How to Begin</Text>
+        <Text style={s.p}>Pick the option that matches where you're at:</Text>
+
+        <Text style={s.h2}>Option A — Not sure what to build yet</Text>
+        <Text style={s.p}>
+          Open Claude.ai (or any AI chat) and paste the Prompt Advisor file from your project's Setup folder. Use it to brainstorm your first steps.
+        </Text>
+
+        <Text style={s.h2}>Option B — Have ideas but want to refine them</Text>
+        <Text style={s.p}>Open Claude Code in your project folder and type:</Text>
+        <View style={s.promptBlock}>
+          <Text>Read CLAUDE.md and brainstorm with me what to build first</Text>
+        </View>
+
+        {hasGoals && (
+          <>
+            <Text style={s.h2}>Option C — Ready to start building</Text>
+            <Text style={s.p}>Open Claude Code in your project folder and type:</Text>
+            <View style={s.promptBlock}>
+              <Text>Read CLAUDE.md and start working on the first pending task in docs/development-queue.md</Text>
+            </View>
           </>
         )}
 
@@ -421,7 +498,10 @@ export function GettingStartedGuide({ data, files, logoBase64 }: GuideProps) {
 
         <Text style={s.h2}>Start your first task</Text>
         <View style={s.promptBlock}>
-          <Text>Read CLAUDE.md and start working on the first pending task in docs/development-queue.md</Text>
+          <Text>{hasGoals
+            ? 'Read CLAUDE.md and start working on the first pending task in docs/development-queue.md'
+            : 'Read CLAUDE.md and help me plan what to build first'
+          }</Text>
         </View>
 
         <Text style={s.h2}>Run diagnostics on a problem</Text>
